@@ -1,0 +1,122 @@
+一.mongoose的基本概念
+    模式(schemas)用来描述集合（数据表），用代码去描述类似于sql数据库中创建表，字段等模型。
+    模型（models）由schemas发布生成的一个模型，具备一些抽象的行为，比如对数据库进行增删改查。
+二.在工程目录下创建dbs文件夹，用来放和数据库有关的配置文件，在里面创建一个config.js用来声明和数据库有关的配置选项
+    config.js
+    module.exports = {
+        dbs:'mongodb://127.0.0.1:27017/dbs'
+    }
+三.新建models用来分模块创建集合，不同的集合文件都可以放在model下面
+    person.js
+    import mongoose from 'mongoose'
+
+    //创建集合
+    const personSchema = new mongoose.Schema({
+        name:String,
+        age:Number
+    })
+
+
+    //将集合与模型关联上
+    module.exports =  mongoose.model('person',personSchema)
+四.连接数据库
+    进入app.js中，引入mongoose,并创建连接
+    const Koa = require('koa')
+    const app = new Koa()
+    const views = require('koa-views')
+    const json = require('koa-json')
+    const onerror = require('koa-onerror')
+    const bodyparser = require('koa-bodyparser')
+    const logger = require('koa-logger')
+    const pv= require('./middleware/koa-pv')
+    const m1= require('./middleware/m1')
+    const m2= require('./middleware/m2')
+    const m3= require('./middleware/m3')
+    const mongoose = require('mongoose')
+    const dbConfig = require('./dbs/config')
+
+
+    const index = require('./routes/index')
+    const users = require('./routes/users')
+
+    // error handler
+    onerror(app)
+
+    // middlewares
+    app.use(bodyparser({
+    enableTypes:['json', 'form', 'text']
+    }))
+
+    app.use(pv())
+    app.use(m1())
+    app.use(m2())
+    app.use(m3())
+
+    app.use(json())
+    app.use(logger())
+    app.use(require('koa-static')(__dirname + '/public'))
+
+    app.use(views(__dirname + '/views', {
+    extension: 'ejs'
+    }))
+
+    // logger
+    app.use(async (ctx, next) => {
+    const start = new Date()
+    await next()
+    const ms = new Date() - start
+    console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
+    })
+
+    // routes
+    app.use(index.routes(), index.allowedMethods())
+    app.use(users.routes(), users.allowedMethods())
+
+    //连接数据库
+    mongoose.connect(dbConfig.dbs,{
+    useNewUrlParser:true
+    })
+    // error-handling
+    app.on('error', (err, ctx) => {
+    console.error('server error', err, ctx)
+    });
+
+    module.exports = app
+
+五.编写接口，创建数据
+    const router = require('koa-router')()
+    // 引入person这个模型，然后实例化，就可以使用model的API进行数据的增删改查
+    const Person = require('../dbs/models/person')
+
+    router.prefix('/users')
+
+    router.get('/', function (ctx, next) {
+    ctx.body = 'this is a users response!'
+    })
+
+    router.get('/bar', function (ctx, next) {
+    ctx.body = 'this is a users/bar response'
+    })
+
+    router.post('/person',async (ctx)=>{
+    const person = new Person({
+        name:ctx.request.body.name,
+        age:ctx.request.body.age
+    })
+    let code
+    try {
+        await person.save()
+        code=0
+    } catch (error) {
+        code=-1
+    }
+    ctx.body ={
+        code
+    }
+
+    })
+
+    module.exports = router
+
+    执行命令，curl代表发送一条请求， -d 指post请求，后面带上参数和地址
+    curl -d 'name=wang&age=18' http://localhost:3000/users/person
