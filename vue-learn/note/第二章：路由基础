@@ -1,0 +1,54 @@
+第二节：路由的基础和用法
+（1）下载vue-router
+在@vue/cli 中是默认没有安装vue-router,所以需要按装
+（2） 路由的使用步骤
+1.先创建需要路由的组件 ex:login.vue ,register.vue
+2.创建router.js文件
+    import Vue from 'vue'
+    import VueRouter from 'vue-router'
+    import pageA from './pages/a.vue'
+    import pageB from './pages/b.vue'
+
+
+    Vue.use(VueRouter)
+
+    const routes = [
+        {
+            path:'/pageA',
+            component:pageA
+        },
+        {
+            path:'/pageB',
+            component:pageB
+        },
+    ]
+
+    const router = new VueRouter({
+        routes
+    })
+
+    export default router
+3.讲router与挂载到vue实例上，同时还要进入index.html生命router-view 和router-link.
+    进入main.js文件
+    import Vue from 'vue'
+    import router from './router.js'
+
+    Vue.config.productionTip = false
+
+    new Vue({
+    router
+    }).$mount('#app')
+
+    注意：此时会报一个错误，You are using the runtime-only build of Vue where the template compiler is not available.
+         Either pre-compile the templates into render functions, or use the compiler-included build.
+
+     <div id="app">
+      <router-link to='/pageA'>pageA</router-link>
+      <router-link to='/pageB'>pageB</router-link>
+      <router-view></router-view>
+    </div>
+4.通过vue.config.js来改变脚手架默认配置,然后重新启动服务就行了
+    新建vue.config.js文件
+    module.exports = {
+        runtimeCompiler:true
+    }

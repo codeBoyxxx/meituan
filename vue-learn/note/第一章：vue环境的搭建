@@ -1,0 +1,6 @@
+(1)安装vue脚手架@vue/cli
+npm install @vue/cli -g  全局安装@vue/cli脚手架
+
+（2）通过命名vue create +项目名称 生成一个vue脚手架的工程目录
+
+（3） 然后就进入工程目录，npm run serve 就可以启动项目
