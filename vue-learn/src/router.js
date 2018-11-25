@@ -1,20 +1,15 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import pageA from './pages/a.vue'
-import pageB from './pages/b.vue'
+import App from './App.vue'
 
 
 Vue.use(VueRouter)
 
 const routes = [
     {
-        path:'/pageA',
-        component:pageA
-    },
-    {
-        path:'/pageB',
-        component:pageB
-    },
+        path:'/',
+        component:App
+    }
 ]
 
 const router = new VueRouter({

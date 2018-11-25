@@ -1,0 +1,149 @@
+一.vuex的基本的概念
+    state  vue的所有的数据或者状态都保存在state里面
+    motations 可以改变state里面的数据状态，里面可以声明函数用来操作对应的数据
+    actions 组件通过actions提交函数的名字给mutations,让mutations来改变state,最后改变完成之后，页面会重新渲染
+二.vuex的基本使用方法
+    (1)先下载vuex
+        npm install vuex --save
+    (2) vuex的配置
+        1.先在src目录下创建store.js文件
+        2.引入vuex,声明state,mutations,actions
+        3.将state,mutations,actions挂载到vuex实例上，然后导出
+
+        import Vue from 'vue'
+        import Vuex from 'vuex'
+        Vue.use(Vuex)
+
+        const state = {
+            count:1
+        }
+
+        const mutations = {
+            increment(state){
+                state.count++
+            },
+            decrement(state){
+                state.count--
+            }
+        }
+
+        const actions = {
+            increment:({commit})=>{
+                commit('increment')
+            },
+            decrement:({commit})=>{
+                commit('decrement')
+            }
+        }
+
+        export default new Vuex.Store({
+            state,
+            mutations,
+            actions
+        })
+    (3) 在main.js 里面引入store.js文件，然后将store挂载到vue实例上面
+        import Vue from 'vue'
+        import router from './router.js'
+        import store from './store'
+
+        Vue.config.productionTip = false
+
+        new Vue({
+        router,
+        store
+        }).$mount('#app')
+三.在组件中使用vuex
+    <template>
+        <div>
+            vuex {{$store.state.count}}
+            <button @click="increment">增加</button>
+            <button @click="decrement">删减</button>
+        </div>
+    </template>
+    <script>
+        import {mapActions} from 'vuex'
+        export default {
+            methods:mapActions([
+                'increment',
+                'decrement'
+            ])
+        }
+    </script>
+四.vuex高级应用实例
+    在实际项目中，页面比较复杂，组件也多，如果将所有的状态管理全部放在一个store.js文件中，那么命名很容易冲突，文件也会比较大，不易管理。
+    所以在vuex中有模块的概念，来帮我们管理不同组件的数据状态。
+
+    使用步骤：
+    (1)在src文件下新建store文件夹，然后在store里面新建modules文件夹，在里面新建a.js和b.js代表a组件和b组件的数据状态
+    (2)在a.js 中声明 a 组件的，state,mutations,actions (b组件类似)
+        const state = {
+            money:1
+        }
+
+        const mutations = {
+            add(state){
+                state.money++
+            },
+            reduce(state){
+                state.money--
+            }
+        }
+
+        const actions = {
+            add:({commit})=>{
+                commit('add')
+            },
+            reduce:({commit})=>{
+                commit('reduce')
+            }
+        }
+
+        export default {
+            namespaced:true,
+            state,
+            mutations,
+            actions
+        }
+    (3) 然后在store文件夹下新建index.js,然后用来管理不同的模块
+        import Vue from 'vue'
+        import Vuex from 'vuex'
+        import a from './modules/a'
+        import b from './modules/b'
+        Vue.use(Vuex)
+
+        export default new Vuex.Store({
+            modules:{
+                a,
+                b
+            }
+        })
+    (4)在main.js中引入store/index.js,将store挂载到vue实例上面。
+        import Vue from 'vue'
+        import router from './router.js'
+        import store from './store/index'
+
+        Vue.config.productionTip = false
+
+        new Vue({
+        router,
+        store
+        }).$mount('#app')
+    （5）在组件中使用vuex
+        <template>
+            <div>
+                component A
+                money {{$store.state.a.money}}
+                <button @click="add">增加</button>
+                <button @click="reduce">删减</button>
+            </div>
+
+        </template>
+        <script>
+        import {mapActions} from 'vuex'
+        export default {
+            methods:mapActions('a',['add','reduce'])
+        }
+        </script>
+
+
+
