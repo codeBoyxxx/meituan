@@ -1,0 +1,67 @@
+一.koa2脚手架安装
+    npm install koa-generator -g
+
+    然后初始化一个工程目录
+    koa2 -e koa2-learn（项目名）
+    注：加上-e，是代表使用ejs的模板引擎
+
+
+二.cd koa--learn ,然后执行npm install 下载项目依赖,然后执行npm install --update-binary
+
+三.执行npm run dev 启动项目
+
+四.async 和 await 注意事项
+    await 必须写在 async 异步函数里面，而async里面可以没有await
+    router.get('/', async (ctx, next) => {
+    global.console.log('index')
+    await ctx.render('index', {
+        title: 'Hello Koa 2!'
+    })
+    })
+
+五.koa中间件
+    (1).什么是ctx
+        是一个全局对象，挂载着所有的信息，包括request信息和response信息，在整个app中都能拿到
+    (2)如何编写中间件
+        function pv (ctx) {
+            global.console.log('pv',ctx.path)
+        }
+
+        module.exports = function(){
+            return async function(ctx,next){
+                pv(ctx)
+                await next()
+            }
+        }
+    (3)引入使用
+        const pv= require('./middleware/koa-pv')
+        app.use(pv())
+六.koa 路由和cookie
+    const router = require('koa-router')()
+
+    router.get('/', async (ctx, next) => {
+    global.console.log('index')
+    await ctx.render('index', {  //render用于渲染页面
+        title: 'Hello Koa 2!'
+    })
+    })
+
+    router.get('/string', async (ctx, next) => {
+        ctx.body = 'koa2 string'  // body 用于返回接口
+    })
+
+
+    router.get('/', async (ctx, next) => {
+        global.console.log('index')
+        ctx.cookies.set('pvid',Math.random())  // 设置cookie
+        await ctx.render('index', {
+            title: 'Hello Koa 2!'
+        })
+    })
+
+    router.get('/json', async (ctx, next) => {
+    ctx.body = {
+        title: 'koa2 json1',
+        cookies:ctx.cookies.get('pvid')  //读取cookie
+    }
+    })
