@@ -30,4 +30,33 @@ router.post('/person',async (ctx)=>{
 
 })
 
+router.post('/getPerson',async (ctx)=>{
+    const result = await Person.findOne({name:ctx.request.body.name})
+    const results = await Person.find({name:ctx.request.body.name})
+    ctx.body ={
+      code:0,
+      result,
+      results
+    }
+})
+
+router.post('/updatePerson',async (ctx)=>{
+  const result = await Person
+  .where({name:ctx.request.body.name})
+  .update({
+    age:ctx.request.body.age
+  })
+  ctx.body ={
+    code:0
+  }
+})
+
+router.post('/removePerson',async (ctx)=>{
+  const result = await Person
+  .where({name:ctx.request.body.name})
+  .remove()
+  ctx.body ={
+    code:0
+  }
+})
 module.exports = router

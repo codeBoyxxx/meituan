@@ -120,3 +120,56 @@
 
     执行命令，curl代表发送一条请求， -d 指post请求，后面带上参数和地址
     curl -d 'name=wang&age=18' http://localhost:3000/users/person
+
+六.mongoose对数据的增删改查
+    //新增数据
+    router.post('/person',async (ctx)=>{
+    const person = new Person({
+        name:ctx.request.body.name,
+            age:ctx.request.body.age
+        })
+        let code
+        try {
+            await person.save()
+            code=0
+        } catch (error) {
+            code=-1
+        }
+        ctx.body ={
+            code
+        }
+
+    })
+
+    //读取数据
+    router.post('/getPerson',async (ctx)=>{
+        const result = await Person.findOne({name:ctx.request.body.name})
+        const results = await Person.find({name:ctx.request.body.name})
+        ctx.body ={
+            code:0,
+            result,
+            results
+        }
+    })
+
+    //修改数据
+    router.post('/updatePerson',async (ctx)=>{
+        const result = await Person
+        .where({name:ctx.request.body.name})
+        .update({
+            age:ctx.request.body.age
+        })
+        ctx.body ={
+            code:0
+        }
+    })
+
+    // 删除数据
+    router.post('/removePerson',async (ctx)=>{
+        const result = await Person
+        .where({name:ctx.request.body.name})
+        .remove()
+        ctx.body ={
+            code:0
+        }
+    })
